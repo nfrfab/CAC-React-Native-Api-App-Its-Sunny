@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { StyleSheet, Text, View, FlatList, Image } from 'react-native'
 import { SearchBar, ListItem, Icon } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/core";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import "../../utils/varsys.js";
 
@@ -11,35 +12,36 @@ export default function Ciudades(props) {
     const { navigation } = props;
 
     const [ciudades, setCiudades] = useState([]);
-    console.log(ciudades);
 
     const [ciudadBusqueda, setCiudadBusqueda] = useState("");
     const [isDownloadMoreCiudades, setIsDownloadMoreCiudades] = useState(false);
 
     //console.log(APP_BASE_COLOR);
 
+    const getObjecto = async (clave) => {
+        try {
+            const jsonValue = await AsyncStorage.getItem(clave)
+            return jsonValue != null ? JSON.parse(jsonValue) : null;
+        } catch(e) {
+            // error reading value
+            console.log(e);
+            return null;
+        }
+    }
+
+    const cargarCiudades = async () => {
+        let ciudadesTemp = await getObjecto("ciudades");
+        if (ciudadesTemp) {
+            //ciudades = [];
+            setCiudades(ciudadesTemp);
+
+        }
+    };
+
     useFocusEffect(
         useCallback(() =>{
             //Se buscan las ciudades favoritas...
-            const arrayCiudades = [];
-
-            const coordenadas = {
-                latitude: -34.61360009718764,
-                longitude: -58.38182123377919,
-                latitudeDelta: 0.001,
-                longitudeDelta: 0.001
-            };
-
-            const ciudad1 = {
-                id: "a1",
-                nombre: "Mar del plata",
-                provincia: "Buenos aires",
-                pais: "Argentina",
-                coordenadas: coordenadas
-            };
-            arrayCiudades.push(ciudad1);
-            setCiudades(arrayCiudades);
-
+            cargarCiudades();
         }, [])
     );
 

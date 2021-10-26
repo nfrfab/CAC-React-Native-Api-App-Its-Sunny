@@ -14,8 +14,6 @@ export default function ClimaCiudad(props) {
 
     const [iconUrl, setIconUrl] = useState(null);
     const [clima, setClima] = useState(null);
-    console.log(iconUrl);
-
 
     const coordenadas = {
         latitude: -34.61360009718764,
@@ -47,7 +45,6 @@ export default function ClimaCiudad(props) {
                     const weatherIconUrl = "http://openweathermap.org/img/w/" + weather[0].icon + ".png";
                     setIconUrl(weatherIconUrl);
                     setClima(response.data);
-                    //console.log(weatherIconUrl);
                 } else {
                     console.log("errorrrrrr");
                 }
