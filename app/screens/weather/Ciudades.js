@@ -4,6 +4,8 @@ import { SearchBar, ListItem, Icon } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/core";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { size } from 'lodash';
+
 import "../../utils/varsys.js";
 
 import ListaCiudades from '../../components/weather/ListaCiudades.js';
@@ -12,18 +14,31 @@ export default function Ciudades(props) {
     const { navigation } = props;
 
     const [ciudades, setCiudades] = useState([]);
+    const [ciudadesLista, setCiudadesLista] = useState([]);
 
     const [ciudadBusqueda, setCiudadBusqueda] = useState("");
     const [isDownloadMoreCiudades, setIsDownloadMoreCiudades] = useState(false);
 
-    //console.log(APP_BASE_COLOR);
+    const filtrarCiudades = () => {
+        if (size(ciudades) > 0 ) {
+            if (ciudadBusqueda === "") {
+                setCiudadesLista(ciudades);
+            } else {
+                console.log("ciudad filtro:");
+                console.log(ciudadBusqueda);
+                const ciudadesFiltradas = ciudades.filter(item => item.nombre.includes(ciudadBusqueda.toUpperCase())).map(ciudadValida => (ciudadValida));
+                setCiudadesLista(ciudadesFiltradas);
+            }
+        } else {
+            setCiudadesLista([]);
+        }
+    };
 
     const getObjecto = async (clave) => {
         try {
             const jsonValue = await AsyncStorage.getItem(clave)
             return jsonValue != null ? JSON.parse(jsonValue) : null;
         } catch(e) {
-            // error reading value
             console.log(e);
             return null;
         }
@@ -32,15 +47,22 @@ export default function Ciudades(props) {
     const cargarCiudades = async () => {
         let ciudadesTemp = await getObjecto("ciudades");
         if (ciudadesTemp) {
-            //ciudades = [];
             setCiudades(ciudadesTemp);
-
+        } else {
+            console.log("SIN CIUDADES EN LA BD LOCAL...");
         }
     };
 
+    useEffect(() => {
+        filtrarCiudades();
+    }, [ciudadBusqueda]);
+
+    useEffect(() => {
+        filtrarCiudades();
+    }, [ciudades]);
+
     useFocusEffect(
-        useCallback(() =>{
-            //Se buscan las ciudades favoritas...
+        useCallback( () =>{
             cargarCiudades();
         }, [])
     );
@@ -48,12 +70,9 @@ export default function Ciudades(props) {
     const handleLoadMore = () => {
         const resultRestaurantes = [];
         console.log("buscando mas ciudades...");
-        
     }
 
     const agregarCiudad = () => {
-        console.log("agregando ciudad");
-
         navigation.navigate("agregarCiudad");
     };
 
@@ -66,11 +85,17 @@ export default function Ciudades(props) {
                 containerStyle={styles.searchBar}
             />
 
-            <ListaCiudades 
-                ciudades={ciudades}
+            {(size(ciudadesLista)> 0) 
+            ? <ListaCiudades 
+                ciudades={ciudadesLista}
                 handleLoadMore={handleLoadMore}
                 isDownloadMoreCiudades={isDownloadMoreCiudades}
             />
+            :
+                <View>
+                    <Text>SIN ITEMS...</Text>
+                </View>
+            }
 
             <Icon
                 reverse

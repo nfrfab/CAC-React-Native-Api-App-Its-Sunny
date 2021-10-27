@@ -78,7 +78,7 @@ export default function AgregarCiudadForm(props) {
             }
             const ciudad1 = {
                 id: uuid(),
-                nombre: nombreCiudad,
+                nombre: nombreCiudad.toUpperCase(),
                 provincia: nombreProvincia,
                 pais: nombrePais,
                 coordenadas: coordenadasCiudad
