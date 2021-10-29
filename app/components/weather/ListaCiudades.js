@@ -1,14 +1,12 @@
 //rnfs  <- para crear de forma rapida la funcion...
 import React from 'react'
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native'
 import { Image } from 'react-native-elements';
 import { size } from 'lodash';
 import { useNavigation } from "@react-navigation/native";
 
-
 export default function ListaCiudades(props) {
-    const { ciudades, handleLoadMore, isDownloadMoreCiudades } = props;
-    //const ciudades = [];
+    const { ciudades, handleLoadMore, isDownloadMoreCiudades, onOpcionesItem } = props;
 
     const navigation = useNavigation();
     
@@ -17,7 +15,7 @@ export default function ListaCiudades(props) {
             { size(ciudades) > 0 ? (
                 <FlatList 
                     data={ciudades}
-                    renderItem={(ciudad) => <CiudadItem  ciudad={ciudad}  navigation={navigation} />}
+                    renderItem={(ciudad) => <CiudadItem  ciudad={ciudad} onOpcionesItem={onOpcionesItem}  navigation={navigation} />}
                     keyExtractor={(item, index) => index.toString()}
                     onEndReachedThreshold={0.5}
                     onEndReached={handleLoadMore}
@@ -51,12 +49,10 @@ function FooterList(props) {
 }
 
 function CiudadItem(props) {
-    const { ciudad, navigation } = props;
+    const { ciudad, onOpcionesItem, navigation } = props;
     const { id, nombre, provincia, pais } = ciudad.item;
 
     const onItemSelected = () => {
-        //console.log("item click...");
-        
         navigation.navigate("climaCiudad", {
             idCiudad: id,
             nombreCiudad: nombre
@@ -64,7 +60,7 @@ function CiudadItem(props) {
     };
 
     return(
-        <TouchableOpacity onPress={onItemSelected}>
+        <TouchableOpacity onPress={onItemSelected} onLongPress={() => onOpcionesItem(ciudad)} >
             <View style={styles.ciudadItemStyle}>
  
                 <View>

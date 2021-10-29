@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { StyleSheet, Text, View, FlatList, Image } from 'react-native'
+import { StyleSheet, Text, View, FlatList, Image, Alert } from 'react-native'
 import { SearchBar, ListItem, Icon } from "react-native-elements";
 import { useFocusEffect } from "@react-navigation/core";
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,9 +15,46 @@ export default function Ciudades(props) {
 
     const [ciudades, setCiudades] = useState([]);
     const [ciudadesLista, setCiudadesLista] = useState([]);
-
+ 
     const [ciudadBusqueda, setCiudadBusqueda] = useState("");
     const [isDownloadMoreCiudades, setIsDownloadMoreCiudades] = useState(false);
+
+    const grabarClaveObjeto = async (clave, value) => {
+        try {
+          const jsonValue = JSON.stringify(value);
+          await AsyncStorage.setItem(clave, jsonValue);
+          return true;
+        } catch (error) {
+          // saving error
+          console.log(error);
+          return false;
+        }
+    }
+
+    const onOpcionesItem = async (itemSeleccionado) => {
+        Alert.alert("Eliminar ciudad", "Desea borrar la ciudad?", 
+            [
+                {
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Eliminar",
+                    onPress: async () => {
+                        const ciudadesRestantes = ciudades.filter(item => item.id !== itemSeleccionado.item.id).map(ciudadValida => (ciudadValida));
+                        const objetoGrabado = await grabarClaveObjeto("ciudades", ciudadesRestantes);
+                        if (objetoGrabado) {
+                            setCiudades(ciudadesRestantes);
+                            console.log("ciudad borrada...");
+                        } else {
+                            console.log("error...");
+                        }
+                    }
+                }
+            ],
+            { cancelable: false }
+        );
+    };
 
     const filtrarCiudades = () => {
         if (size(ciudades) > 0 ) {
@@ -33,7 +70,7 @@ export default function Ciudades(props) {
             setCiudadesLista([]);
         }
     };
-
+    
     const getObjecto = async (clave) => {
         try {
             const jsonValue = await AsyncStorage.getItem(clave)
@@ -90,6 +127,7 @@ export default function Ciudades(props) {
                 ciudades={ciudadesLista}
                 handleLoadMore={handleLoadMore}
                 isDownloadMoreCiudades={isDownloadMoreCiudades}
+                onOpcionesItem={onOpcionesItem}
             />
             :
                 <View>
