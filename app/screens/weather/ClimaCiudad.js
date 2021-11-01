@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef} from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import Toast from "react-native-easy-toast";
@@ -9,26 +9,19 @@ import Loading from '../../components/Loading.js';
 import "../../utils/varsys.js";
 import { size } from 'lodash';
 export default function ClimaCiudad(props) {
+    const { navigation, route } = props;
+    const { ciudadElegida } = route.params;
+    const ciudad = JSON.parse(ciudadElegida);
+
     const toastRef = useRef();
     const [mostrarLoading, setMostrarLoading] = useState(true);
 
     const [iconUrl, setIconUrl] = useState(null);
     const [clima, setClima] = useState(null);
 
-    const coordenadas = {
-        latitude: -34.61360009718764,
-        longitude: -58.38182123377919,
-        latitudeDelta: 0.001,
-        longitudeDelta: 0.001
-    };
-
-    const ciudad = {
-        id: "a1",
-        nombre: "Mar del plata",
-        provincia: "Buenos aires",
-        pais: "Argentina",
-        coordenadas: coordenadas
-    };
+    useLayoutEffect(() => navigation.setOptions({
+        title: ciudad.nombre
+    }), []);
 
     const getClimaCiudad =  async () => {
         const weatherIconUrl = "http://openweathermap.org/img/w/" + "04n" + ".png";
@@ -48,14 +41,11 @@ export default function ClimaCiudad(props) {
                 } else {
                     console.log("errorrrrrr");
                 }
-                
-                
             })
             .catch(error => {
                 setMostrarLoading(false);
                 console.log(error);
         });
-        
     };
 
     useEffect(() => {
@@ -65,7 +55,8 @@ export default function ClimaCiudad(props) {
 
     return (
         <View>
-            <View style={styles.viewImage}>
+            {iconUrl ? (
+                <View style={styles.viewImage}>
                 <Image  
                     resizeMode ="cover"
                     source={
@@ -76,6 +67,8 @@ export default function ClimaCiudad(props) {
                     style={styles.image}
                 />
             </View>
+            ) : null}
+            
             <View style={styles.viewTemperatura}>
                 <Text style={styles.climaItemTitulo} >Temperatura: </Text>
                 <Text style={styles.climaItemValor} >{clima  ? clima.main.temp : ""}</Text>

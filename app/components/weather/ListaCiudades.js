@@ -53,7 +53,9 @@ function CiudadItem(props) {
     const { id, nombre, provincia, pais } = ciudad.item;
 
     const onItemSelected = () => {
+        const ciudadElegida = JSON.stringify(ciudad.item);
         navigation.navigate("climaCiudad", {
+            ciudadElegida: ciudadElegida,
             idCiudad: id,
             nombreCiudad: nombre
         });
