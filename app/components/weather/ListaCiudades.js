@@ -83,7 +83,9 @@ const styles = StyleSheet.create({
     },
     ciudadItemStyle: {
         flexDirection: "row",
-        margin: 10
+        margin: 10,
+        borderBottomColor: "#d8d8d8",
+        borderBottomWidth: 1
     },
     ciudadItemImagenStyle: {
         marginRight: 15,
