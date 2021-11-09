@@ -53,7 +53,9 @@ function CiudadItem(props) {
     const { id, nombre, provincia, pais } = ciudad.item;
 
     const onItemSelected = () => {
+        const ciudadElegida = JSON.stringify(ciudad.item);
         navigation.navigate("climaCiudad", {
+            ciudadElegida: ciudadElegida,
             idCiudad: id,
             nombreCiudad: nombre
         });
@@ -81,7 +83,9 @@ const styles = StyleSheet.create({
     },
     ciudadItemStyle: {
         flexDirection: "row",
-        margin: 10
+        margin: 10,
+        borderBottomColor: "#d8d8d8",
+        borderBottomWidth: 1
     },
     ciudadItemImagenStyle: {
         marginRight: 15,

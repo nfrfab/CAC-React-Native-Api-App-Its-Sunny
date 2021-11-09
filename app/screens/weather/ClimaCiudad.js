@@ -1,34 +1,28 @@
-import React, { useState, useEffect, useRef} from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Image } from 'react-native-elements';
+import React, { useState, useEffect, useLayoutEffect, useRef} from 'react';
+import { StyleSheet, Text, View, Platform, Pressable } from 'react-native';
+import { Image, Divider } from 'react-native-elements';
 import Toast from "react-native-easy-toast";
 import axios from 'axios';
 
+import MyMaps from '../../components/MyMaps.js';
 import Loading from '../../components/Loading.js';
 
 import "../../utils/varsys.js";
 import { size } from 'lodash';
 export default function ClimaCiudad(props) {
+    const { navigation, route } = props;
+    const { ciudadElegida } = route.params;
+    const ciudad = JSON.parse(ciudadElegida);
+
     const toastRef = useRef();
     const [mostrarLoading, setMostrarLoading] = useState(true);
 
     const [iconUrl, setIconUrl] = useState(null);
     const [clima, setClima] = useState(null);
 
-    const coordenadas = {
-        latitude: -34.61360009718764,
-        longitude: -58.38182123377919,
-        latitudeDelta: 0.001,
-        longitudeDelta: 0.001
-    };
-
-    const ciudad = {
-        id: "a1",
-        nombre: "Mar del plata",
-        provincia: "Buenos aires",
-        pais: "Argentina",
-        coordenadas: coordenadas
-    };
+    useLayoutEffect(() => navigation.setOptions({
+        title: ciudad.nombre
+    }), []);
 
     const getClimaCiudad =  async () => {
         const weatherIconUrl = "http://openweathermap.org/img/w/" + "04n" + ".png";
@@ -48,14 +42,11 @@ export default function ClimaCiudad(props) {
                 } else {
                     console.log("errorrrrrr");
                 }
-                
-                
             })
             .catch(error => {
                 setMostrarLoading(false);
                 console.log(error);
         });
-        
     };
 
     useEffect(() => {
@@ -65,7 +56,8 @@ export default function ClimaCiudad(props) {
 
     return (
         <View>
-            <View style={styles.viewImage}>
+            {iconUrl ? (
+                <View style={styles.viewImage}>
                 <Image  
                     resizeMode ="cover"
                     source={
@@ -76,13 +68,27 @@ export default function ClimaCiudad(props) {
                     style={styles.image}
                 />
             </View>
-            <View style={styles.viewTemperatura}>
-                <Text style={styles.climaItemTitulo} >Temperatura: </Text>
-                <Text style={styles.climaItemValor} >{clima  ? clima.main.temp : ""}</Text>
+            ) : null}
+
+            <Divider style={styles.divider} />
+            
+            <View style={styles.contenedorInfo} >
+                <View style={styles.viewTemperatura}>
+                    <Text style={styles.climaItemTitulo} >Temperatura: </Text>
+                    <Text style={styles.climaItemValor} >{clima  ? clima.main.temp : ""}</Text>
+                </View>
+                <View style={styles.viewValorUltimo}>
+                    <Text style={styles.climaItemTitulo} >Humedad: </Text>
+                    <Text style={styles.climaItemValor} >{clima  ? clima.main.humidity : ""}%</Text>
+                </View>
             </View>
-            <View style={styles.viewTemperatura}>
-                <Text style={styles.climaItemTitulo} >Humedad: </Text>
-                <Text style={styles.climaItemValor} >{clima  ? clima.main.humidity : ""}%</Text>
+
+            <View style={styles.viewMapa} >
+                <MyMaps 
+                    location={ciudad.coordenadas}
+                    name={ciudad.nombre}
+                    height={100}
+                />
             </View>
 
             <Toast ref={toastRef} position="center" opacity={0.9} />
@@ -101,7 +107,18 @@ const styles = StyleSheet.create({
     },
     viewTemperatura: {
         flexDirection: "row",
-        marginLeft: 25
+        marginLeft: 25,
+    },
+    viewValorUltimo: {
+        flexDirection: "row",
+        marginLeft: 25,
+        marginBottom: 15,
+        paddingBottom: 10,
+        borderBottomColor: "#d8d8d8",
+        borderBottomWidth: 1
+    },
+    viewMapa: {
+        margin: 15,
     },
     climaItemValor: {
         fontWeight: "bold",
@@ -110,5 +127,40 @@ const styles = StyleSheet.create({
     },
     climaItemTitulo: {
         fontSize: 20
-    }
+    },
+    contenedorInfo: {
+        backgroundColor: "#FAF1E6",
+        marginLeft:15 ,
+        marginRight: 15,
+        paddingTop:10,
+        paddingBottom: 10
+    },
+    divider: {
+        backgroundColor: "#00a680",
+        marginRight:40,
+        marginLeft: 40
+    },
+    shadowProp: {
+        shadowColor: '#171717',
+        shadowOffset: {width: 0, height: 3},
+        shadowOpacity: 0.4,
+        shadowRadius: 2,
+    },
+    button: {
+        backgroundColor: '#4830D3',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 42,
+        borderRadius: 4,
+        marginTop: 30,
+      },
+    buttonText: {
+        color: '#fff',
+    },
+    text: {
+        fontSize: 16,
+        lineHeight: 21,
+        fontWeight: 'bold',
+        letterSpacing: 0.25,
+    },
 })
