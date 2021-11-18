@@ -2,6 +2,7 @@
 import React from 'react'
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, Alert } from 'react-native'
 import { Image } from 'react-native-elements';
+import Icon from 'react-native-vector-icons/Feather';
 import { size } from 'lodash';
 import { useNavigation } from "@react-navigation/native";
 
@@ -70,6 +71,15 @@ function CiudadItem(props) {
                     <Text style={styles.ciudadProvincia} >{provincia}</Text>
                     <Text style={styles.ciudadPais} >{pais} </Text>
                 </View>
+                <View style={styles.viewBotonBorrar}>
+                    <Icon
+                        name={'minus-circle'}
+                        style={styles.botonBorrar}
+                        size={28}
+                        onPress={() => onOpcionesItem(ciudad)}
+                    />
+                </View>
+                
             </View>
         </TouchableOpacity>
     );
@@ -84,16 +94,20 @@ const styles = StyleSheet.create({
     ciudadItemStyle: {
         flexDirection: "row",
         margin: 10,
+        paddingBottom: 20,
         borderBottomColor: "#d8d8d8",
-        borderBottomWidth: 1
+        borderBottomWidth: 1,
+        justifyContent: "center",
     },
     ciudadItemImagenStyle: {
         marginRight: 15,
 
     },
-    image: {
-        width: 80,
-        height: 80
+    viewBotonBorrar: {
+        justifyContent: "center",
+    },
+    botonBorrar: {
+        color: "red"
     },
     ciudadNombre: {
         fontWeight: "bold"
