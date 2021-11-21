@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef} from 'react';
-import { StyleSheet, Text, View, Platform, Pressable } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Image, Divider } from 'react-native-elements';
 import Toast from "react-native-easy-toast";
 import axios from 'axios';
@@ -45,6 +45,18 @@ export default function ClimaCiudad(props) {
             })
             .catch(error => {
                 setMostrarLoading(false);
+                if (error.response) {
+                    switch (error.response.status) {
+                        case 401:
+                            toastRef.current.show("API KEY INVALIDA. Ver https://openweathermap.org" );
+                            break;
+                        default:
+                            toastRef.current.show("Erros status " + error.response.status + ". Ver https://openweathermap.org" );
+                            break;        
+                    }
+                } else {
+                    toastRef.current.show("Error realizando peticion al servidor. No hubo respuesta...");
+                }
                 console.log(error);
         });
     };
@@ -71,8 +83,9 @@ export default function ClimaCiudad(props) {
             ) : null}
 
             <Divider style={styles.divider} />
-            
-            <View style={styles.contenedorInfo} >
+
+            {clima ? (
+                <View style={styles.contenedorInfo} >
                 <View style={styles.viewTemperatura}>
                     <Text style={styles.climaItemTitulo} >Temperatura: </Text>
                     <Text style={styles.climaItemValor} >{clima  ? clima.main.temp : ""}</Text>
@@ -82,6 +95,7 @@ export default function ClimaCiudad(props) {
                     <Text style={styles.climaItemValor} >{clima  ? clima.main.humidity : ""}%</Text>
                 </View>
             </View>
+            ) : null}
 
             <View style={styles.viewMapa} >
                 <MyMaps 

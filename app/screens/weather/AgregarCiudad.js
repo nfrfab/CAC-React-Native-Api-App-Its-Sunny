@@ -9,13 +9,11 @@ export default function AgregarCiudad(props) {
     const { navigation  } = props;
     const toastRef = useRef();
     const [mostrarLoading, setMostrarLoading] = useState(false);
-    const [textoLoading, setTextoLoading] = useState("Creando restaurante...");
-
-    //console.log(toastRef);
+    const [textoLoading, setTextoLoading] = useState("Buscando...");
 
     return (
         <View>
-            <AgregarCiudadForm  toastRef={toastRef} setIsLoading={toastRef} navigation={navigation} /> 
+            <AgregarCiudadForm  toastRef={toastRef} setMostrarLoading={setMostrarLoading} navigation={navigation} /> 
             
             <Loading isVisible={mostrarLoading} text={textoLoading} />
 

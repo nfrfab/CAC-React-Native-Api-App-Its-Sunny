@@ -8,11 +8,12 @@ import MapView, {Marker} from "react-native-maps";
 import { map, size, filter } from "lodash";
 import uuid from "random-uuid-v4";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 import Modal from '../Modal';
 
 export default function AgregarCiudadForm(props) {
-    const { toastRef, setIsLoading, navigation} = props;
+    const { toastRef, setMostrarLoading, navigation} = props;
 
     const [nombreCiudad, setNombreCiudad] = useState(null);
     const [nombreProvincia, setNombreProvincia] = useState(null);
@@ -21,6 +22,12 @@ export default function AgregarCiudadForm(props) {
     const [isVisibleMap, setIsVisibleMap] = useState(false);
     const [coordenadasCiudad, setCoodenadasCiudad] = useState(null);
 
+    const [currentLocation, setCurrentLocation] = useState({
+        latitude: -34.61360009718764,
+        longitude: -58.38182123377919,
+        latitudeDelta: 0.001,
+        longitudeDelta: 0.001
+    });
 
     const setClaveValor = async (clave, valor) => {
         try {
@@ -52,7 +59,6 @@ export default function AgregarCiudadForm(props) {
           // error reading value
         }
       }
-
 
     const getObjecto = async (clave) => {
         try {
@@ -99,11 +105,16 @@ export default function AgregarCiudadForm(props) {
     return (
         <ScrollView style={styles.scrollView}>
             <FormAdd 
+                nombreCiudad={nombreCiudad}
+                nombrePais={nombrePais}
                 setNombreCiudad={setNombreCiudad}
                 setNombreProvincia={setNombreProvincia}
                 setNombrePais={setNombrePais}
                 coordenadasCiudad={coordenadasCiudad}
-                setIsVisibleMap={setIsVisibleMap} 
+                setCurrentLocation={setCurrentLocation}
+                setIsVisibleMap={setIsVisibleMap}
+                toastRef={toastRef}
+                setMostrarLoading={setMostrarLoading}
             />
 
             <Button 
@@ -114,21 +125,29 @@ export default function AgregarCiudadForm(props) {
                 }
             />
 
-            <Map isVisibleMap={isVisibleMap} setIsVisibleMap={setIsVisibleMap} toastRef={toastRef} setLocationCiudad={setCoodenadasCiudad} />
+            <Map 
+                isVisibleMap={isVisibleMap} 
+                setIsVisibleMap={setIsVisibleMap} 
+                toastRef={toastRef}
+                currentLocation={currentLocation}
+                setCurrentLocation={setCurrentLocation}
+                setLocationCiudad={setCoodenadasCiudad} />
         </ScrollView>
     );
 }
 
 function Map(props) {
-    const { isVisibleMap, setIsVisibleMap, toastRef, setLocationCiudad } = props;
+    const { isVisibleMap, setIsVisibleMap, toastRef, currentLocation, setCurrentLocation, setLocationCiudad } = props;
 
     //const [currentLocation, setCurrentLocation] = useState(null);
+    /*
     const [currentLocation, setCurrentLocation] = useState({
         latitude: -34.61360009718764,
         longitude: -58.38182123377919,
         latitudeDelta: 0.001,
         longitudeDelta: 0.001
     });
+    */
 
     const guardarLocalizacionCiudad = () => {
         setLocationCiudad(currentLocation);
@@ -198,10 +217,99 @@ function Map(props) {
 }
 
 function FormAdd(props) {
-    const { setNombreCiudad, setNombreProvincia, setNombrePais, coordenadasCiudad, setIsVisibleMap } = props;
+    const { nombreCiudad, nombrePais, setNombreCiudad, setNombreProvincia, setNombrePais, coordenadasCiudad, setCurrentLocation, setIsVisibleMap, toastRef, setMostrarLoading } = props;
+
+    const URL_API_PAIS_INFO = "https://restcountries.com/v3.1/name/";
+    const getCodigoPais =  async () => {
+        const url = URL_API_PAIS_INFO + nombrePais;
+        axios.get(url)
+            .then(response => {
+                const codigoPais = response.data[0].cca2;
+                getCoordenadasCiudadCodigoPais(codigoPais);
+            })
+            .catch(error => {
+                setMostrarLoading(false);
+                if (error.response) {
+                    switch (error.response.status) {
+                        case 404:
+                            toastRef.current.show("Error buscando el pais. Verifique el nombre");
+                            break;
+                        default:
+                            toastRef.current.show("Erros status " + error.response.status + ". Ver https://restcountries.com" );
+                            break;        
+                    }
+                    
+                } else {
+                    toastRef.current.show("Error realizando peticion al servidor. No hubo respuesta...");
+                }
+                console.log(error);
+        });
+    };
+
+    const getCoordenadasCiudadCodigoPais =  async (codicoPais) => {
+        const ciudadCodPais = nombreCiudad + "," + codicoPais;
+        const url = URL_API_CLIMA + "?q=" + ciudadCodPais + "&appid=" + API_KEY_WEATHER;
+        axios.get(url)
+            .then(response => {
+                setMostrarLoading(false);
+                const coordenadas = response.data.coord;
+                setCurrentLocation({
+                    latitude: coordenadas.lat,
+                    longitude: coordenadas.lon,
+                    latitudeDelta: 0.001,
+                    longitudeDelta: 0.001
+                });
+                setIsVisibleMap(true);
+            })
+            .catch(error => {
+                setMostrarLoading(false);
+                if (error.response) {
+                    switch (error.response.status) {
+                        case 401:
+                            toastRef.current.show("API KEY INVALIDA. Ver https://openweathermap.org" );
+                            break;
+                        case 404:
+                            toastRef.current.show("Error buscando las coordenadas de la ciudad. Verifique los datos");
+                            break;
+                        default:
+                            toastRef.current.show("Erros status " + error.response.status + ". Ver https://openweathermap.org" );
+                            break;        
+                    }
+                    //console.log(error.response.data);
+                    //console.log(error.response.status);
+                    //console.log(error.response.headers);
+                    //toastRef.current.show("Error buscando las coordenadas de la ciudad. Verifique los datos");
+                } else {
+                    toastRef.current.show("Error realizando peticion al servidor. No hubo respuesta...");
+                }
+                console.log(error);
+                
+        });
+    };
+
+    const verificarDatos = async () => {
+        if (!nombreCiudad || !nombrePais) {
+            toastRef.current.show("Debe ingresar todos los campos");
+        } else {
+            setMostrarLoading(true);
+            getCodigoPais();
+        }
+    }
 
     return(
         <View style={styles.viewForm}>
+            <Input
+                placeholder="Pais"
+                containerStyle={styles.input}
+                onChange={(e) => setNombrePais(e.nativeEvent.text)}
+            />    
+
+            <Input
+                placeholder="Provincia"
+                containerStyle={styles.input}
+                onChange={(e) => setNombreProvincia(e.nativeEvent.text)}
+            />
+
             <Input
                 placeholder="Ciudad"
                 containerStyle={styles.input}
@@ -212,22 +320,10 @@ function FormAdd(props) {
                         name="google-maps"
                         color={coordenadasCiudad ? "#00a680" :"#c2c2c2"}
                         onPress={() =>
-                            setIsVisibleMap(true)
+                            verificarDatos()//setIsVisibleMap(true)
                         }
                     />
                 }
-            />
-
-            <Input
-                placeholder="Provincia"
-                containerStyle={styles.input}
-                onChange={(e) => setNombreProvincia(e.nativeEvent.text)}
-            />
-
-            <Input
-                placeholder="Pais"
-                containerStyle={styles.input}
-                onChange={(e) => setNombrePais(e.nativeEvent.text)}
             />
         </View>
     );
