@@ -11,7 +11,7 @@ export default function HomeStack() {
             <Stack.Screen 
                 name="proposito" 
                 component={Proposito} 
-                options={{ title: "Proposito de la app" }}
+                options={{ title: "HOME" }}
             />
         </Stack.Navigator>
     );
