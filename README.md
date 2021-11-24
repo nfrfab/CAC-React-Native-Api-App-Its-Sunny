@@ -12,6 +12,10 @@
 
 5) listo, correr la app con el comando: yarn start
 
+----REQUISITO PARA QUE LA APP TE MUESTRE EL CLIMA CON EXITO----
+
+ -Deberás crearte una API-key en https://openweathermap.org y copiarla y pegarla en el archiivo varsys.js.
+ 
 ----------------------------
 ------FUNCIONALIDADES DE LA APP--
 
