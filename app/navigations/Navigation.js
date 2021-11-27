@@ -19,7 +19,7 @@ export default function Navigation() {
                     style: { backgroundColor: 'orange'},
                     tabBarIcon: ({ color }) => screenOptions(route, color),
                     tabBarInactiveTintColor: "#646464",
-                    tabBarActiveTintColor: "#00a680",
+                    tabBarActiveTintColor: "rgb(71,149,212)",
                 })}
             >
                 <Tab.Screen 

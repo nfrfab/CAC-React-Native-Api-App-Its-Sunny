@@ -139,7 +139,7 @@ export default function Ciudades(props) {
                 reverse
                 type="material-community"
                 name="plus"
-                color="#00a680"
+                color="rgb(71,149,212)"
                 containerStyle={styles.btnContainer}
                 onPress={() =>
                     agregarCiudad()

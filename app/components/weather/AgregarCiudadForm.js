@@ -360,10 +360,10 @@ const styles = StyleSheet.create({
         paddingRight: 5
     },
     mapBtnViewGuardar: {
-        backgroundColor: "#00a680"
+        backgroundColor: "rgb(71,149,212)"
     },
     btnStyle: {
-        backgroundColor: "#00a680",
+        backgroundColor: "rgb(71,149,212)",
         margin: 20
     },
 })
