@@ -64,18 +64,18 @@ class Slider extends React.Component {
           onMomentumScrollEnd={this.setSelectedIndex}
           ref={this.scrollRef}
         >
-          {images.map(image => (
-            <>
-            <ImageBackground
-              style={styles.backgroundImage}
-              source={image.img}
-              key={image}
-            >
-            <Text style={styles.descripcion}>
-              {image.texto}
-            </Text>
-            </ImageBackground>
-            </>
+          {images.map((image, index) => (
+            <View key={index}>
+              <ImageBackground
+                style={styles.backgroundImage}
+                source={image.img}
+                
+              >
+                <Text style={styles.descripcion}>
+                  {image.texto}
+                </Text>
+              </ImageBackground>
+            </View>
           ))}
         </ScrollView>
       </View>
