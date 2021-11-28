@@ -24,8 +24,8 @@ export default function AcercaDe() {
                             Martin Roige. {'\n'}{'\n'}
                         </Text>
                         Desarrollamos la aplicación utilizando
-                        <Text onPress={() => Linking.openURL('http://google.com')}>
-                            {''}(...){''}
+                        <Text onPress={() => Linking.openURL('https://moqups.com/es/')}>
+                            {''} Moqups {''}
                         </Text>
                         para maquetado y
                         <Text onPress={() => Linking.openURL('http://expo.io')}>
